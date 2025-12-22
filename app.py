@@ -294,4 +294,5 @@ if __name__== "__main__": #untuk apasih ini
 print("stopping program...")
 time.sleep(5)
 print("Program end")
+print("bye")
 
