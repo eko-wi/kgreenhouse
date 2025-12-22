@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Greenhouse</title>
+  <meta charset= "UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"
+</head>
+<body>
+<p style="text-align: center;"><span style="color: #008000;"><strong>GREENHOUSE</strong></span></p>
+<p><span style="text-decoration: underline;">Nilai sensor</span></p>
+<ul>
+<li>Suhu (DHT11) :<span id="suhu">0</span></li>
+<li>Suhu (camera) :<span id="suhu2">0</span></li>
+<li>Cahaya (LDR) :<span id="ldr">0</span></li>
+<li>Kelembaban :<span id="humid">0</span></li>
+<li>Soil moisture :<span id="moist">0</span></li>
+</ul>
+</body>
+<script>
+  async function updateTemp() {
+    const hasil = await fetch('/data');
+    if(hasil.ok){
+      const data = await hasil.json();
+      document.getElementById("suhu").textContent = data.temp + " C";
+      document.getElementById("humid").textContent = data.humid + " %";
+      document.getElementById("moist").textContent = data.A0;
+      document.getElementById("ldr").textContent = data.A1;
+    }
+  }
+  setInterval(updateTemp, 5000);
+</script>
+</html>
