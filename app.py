@@ -8,6 +8,7 @@ import time
 import pwmio
 import requests
 import json
+import math
 
 #startup, objek-objek dan variabel global
 print("Program start")
@@ -170,7 +171,8 @@ def readADS(printing=True):
   if new_ch0>0: #nilainya wajar
     with datalock: #.acquire():
       sensordata["A0"]=new_ch0
-      sensordata["A1"]=new_ch1
+      #lux = exp(-ln(d)/0.548)+22.7)
+      sensordata["A1"]=math.exp(-math.log(new_ch1)/0.548)+22.7)
       status["time"]=timestamp()
       status["ADS"]=1
     if printing:
