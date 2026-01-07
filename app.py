@@ -171,12 +171,15 @@ def readADS(printing=True):
   if new_ch0>0: #nilainya wajar
     with datalock: #.acquire():
       sensordata["A0"]=new_ch0
+      v = new_ch1*4.096/32767
+      lux = math.pow(((33000-v*10000)/(v*1043460)), (-1/0.548))
       #lux = exp(-ln(d)/0.548)+22.7)
-      sensordata["A1"]=math.exp(-math.log(new_ch1)/0.548)+22.7)
+      #lux = math.exp(-math.log(new_ch1)/0.548+22.7)
+      sensordata["A1"]=lux
       status["time"]=timestamp()
       status["ADS"]=1
     if printing:
-      print("A0=",new_ch0,"A1=",new_ch1)
+      print("A0=",new_ch0,"A1=",new_ch1,"v1=", v, "lux=",lux)
   else:
     with datalock: 
       status["ADS"]=0
