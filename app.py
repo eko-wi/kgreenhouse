@@ -55,7 +55,7 @@ print("setup DHT11")
 dht = adafruit_dht.DHT11(board.D4)
 
 #variabel untuk menyimpan segala data dan status
-status={"dht":0, "ADS": 0, "time": 0, "pwmout": 0, "pump": 0, "led": 0,"sudah_nyiram": False, "menit_terakhir": 0}
+status={"dht":0, "ADS": 0, "time": 0, "pwmout": 0, "pump": 0, "led": 0,"sudah_nyiram": False, "menit_terakhir": 0, "percentage_led":0}
 sensordata={"A0":0, "A1": 0, "temp": 0, "humid": 0}
 settings={"interval":2, "report_update": 300, "running": 1, "kering":26556, "basah":14949, "lux_min":15000, "lux_max":30000, "durasi_max_pump":10}
 jadwal=[]
@@ -249,6 +249,7 @@ def start_control_thread():
   while True:
     cekjadwal()
     print("ini lg cek jadwal")
+    percentage = 0
     if status["led"]==1:
       #nyalain led sesuai dengan lux-nya :)
       if sensordata["A1"] < settings["lux_min"]: #di bawah 15.000 lx akan nyala 100% (65.535)
@@ -266,6 +267,7 @@ def start_control_thread():
     elif status["led"]==0:
       pwmout(0)
       print("led mati")
+    status["percentage_led"]=percentage
     #nyalain pompa
     if status["pump"]==1:
       status["pump"]=0
@@ -276,6 +278,10 @@ def start_control_thread():
         time.sleep(durasi_pump)
         setled(no=2,state=0)
         print("beres nyiram")
+        pm = '?a=nyiram&val='+str(durasi_pump)
+        print(url+pm)
+        R=requests.get(url+pm)
+        print('upload action>', R.ok)
     time.sleep(2)
         
 #thread server
@@ -299,7 +305,7 @@ def start_measure_thread():
 def start_report_thread():
   while True:
     with datalock:
-      pm = '?temp='+str(sensordata["temp"])+'&hum='+str(sensordata["humid"])+'&light='+str(sensordata["A1"])+'&sm='+str(sensordata["A0"])
+      pm = '?temp='+str(sensordata["temp"])+'&hum='+str(sensordata["humid"])+'&light='+str(sensordata["A1"])+'&sm='+str(sensordata["A0"]+'&led='+str(status["percentage_led'])
     print(url+pm)
     R=requests.get(url+pm)
     print('upload data>', R.ok)
