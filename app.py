@@ -55,7 +55,7 @@ print("setup DHT11")
 dht = adafruit_dht.DHT11(board.D4)
 
 #variabel untuk menyimpan segala data dan status
-status={"dht":0, "ADS": 0, "time": 0, "pwmout": 0, "pump": 0, "led": 0}
+status={"dht":0, "ADS": 0, "time": 0, "pwmout": 0, "pump": 0, "led": 0,"sudah_nyiram": False, "menit_terakhir": 0}
 sensordata={"A0":0, "A1": 0, "temp": 0, "humid": 0}
 settings={"interval":2, "report_update": 300, "running": 1, "kering":26556, "basah":14949, "lux_min":15000, "lux_max":30000, "durasi_max_pump":10}
 jadwal=[]
@@ -224,6 +224,10 @@ def cekjadwal():
   t=time.localtime()
   a=""
   s=time.strftime("%H%M",t)
+  #waktu pergantian menit, aktifkan nyiram lagi -> set sudah_nyiram=False
+  if t.tm_min != status["menit_terakhir"]:
+    status["sudah_nyiram"]=False
+  status["menit_terakhir"]=t.tm_min #update menit terakhir
   with jadwallock:
     for j in jadwal:
       if j["t"]==s:
@@ -233,8 +237,9 @@ def cekjadwal():
         break
 #list action: nyiram, led on, led off
   with datalock:
-    if a =="nyiram":
+    if a =="nyiram" and status["sudah_nyiram"]==False :
       status["pump"]=1
+      status["sudah_nyiram"]=True
     elif a=="led_on":
       status["led"]=1
     elif a=="led_off":
