@@ -263,6 +263,9 @@ def start_control_thread():
         percentage = 0
         pwmout(percentage)
         print("ga nyala, dah terang")
+    elif status["led"]==0:
+      pwmout(0)
+      print("led mati")
     #nyalain pompa
     if status["pump"]==1:
       status["pump"]=0
