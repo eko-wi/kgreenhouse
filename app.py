@@ -222,6 +222,7 @@ def bukajadwal(namafile):
 def cekjadwal():
 #cek waktu, cek semua jadwal ada yg cocok atau ga, klo ada yg cocok lakukan
   t=time.localtime()
+  a=""
   s=time.strftime("%H%M",t)
   with jadwallock:
     for j in jadwal:
