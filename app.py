@@ -228,6 +228,7 @@ def cekjadwal():
       if j["t"]==s:
         #lakukan action
         a = j["a"]
+        print("actionnya", a)
         break
 #list action: nyiram, led on, led off
   with datalock:
@@ -247,7 +248,7 @@ def start_control_thread():
       if sensordata["A1"] < settings["lux_min"]: #di bawah 15.000 lx akan nyala 100% (65.535)
         percentage = 100
         pwmout(percentage)
-        print("lux di bawah 15.000 > nyala maksimal)
+        print("lux di bawah 15.000 > nyala maksimal")
       elif sensordata["A1"] < settings["lux_max"] : #di atas 15.000 s.d 30.000 akan menyala sesuai persentase
         percentage = (100/(settings["lux_min"]-settings["lux_man"])*sensordata["A1"]+100)
         pwmout(percentage)
