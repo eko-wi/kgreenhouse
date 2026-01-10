@@ -305,7 +305,7 @@ def start_measure_thread():
 def start_report_thread():
   while True:
     with datalock:
-      pm = '?temp='+str(sensordata["temp"])+'&hum='+str(sensordata["humid"])+'&light='+str(sensordata["A1"])+'&sm='+str(sensordata["A0"]+'&led='+str(status["percentage_led'])
+      pm = '?temp='+str(sensordata["temp"])+'&hum='+str(sensordata["humid"])+'&light='+str(sensordata["A1"])+'&sm='+str(sensordata["A0"]+'&led='+str(status["percentage_led"])
     print(url+pm)
     R=requests.get(url+pm)
     print('upload data>', R.ok)
