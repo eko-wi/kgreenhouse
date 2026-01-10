@@ -57,7 +57,7 @@ dht = adafruit_dht.DHT11(board.D4)
 #variabel untuk menyimpan segala data dan status
 status={"dht":0, "ADS": 0, "time": 0, "pwmout": 0, "pump": 0, "led": 0}
 sensordata={"A0":0, "A1": 0, "temp": 0, "humid": 0}
-settings={"interval":2, "report_update": 300, "running": 1}
+settings={"interval":2, "report_update": 300, "running": 1, "kering":26556, "basah":14949, "lux_min":15000, "lux_max":30000, "durasi_max_pump":10}
 jadwal=[]
 
 #thread lock untuk mencegah tabrakan antara thread measurement dan server mengakses data
@@ -238,6 +238,36 @@ def cekjadwal():
     elif a=="led_off":
       status["led"]=0
 
+def start_control_thread():
+  while True:
+    cekjadwal()
+    print("ini lg cek jadwal")
+    if status["led"]==1:
+      #nyalain led sesuai dengan lux-nya :)
+      if sensordata["A1"] < settings["lux_min"]: #di bawah 15.000 lx akan nyala 100% (65.535)
+        percentage = 100
+        pwmout(percentage)
+        print("lux di bawah 15.000 > nyala maksimal)
+      elif sensordata["A1"] < settings["lux_max"] : #di atas 15.000 s.d 30.000 akan menyala sesuai persentase
+        percentage = (100/(settings["lux_min"]-settings["lux_man"])*sensordata["A1"]+100)
+        pwmout(percentage)
+        print("nyala lampu sesuai persentase")
+      else: #30.000 ke atas, ga nyala
+        percentage = 0
+        pwmout(percentage)
+        print("ga nyala, dah terang")
+    #nyalain pompa
+    if status["pump"]==1:
+      status["pump"]=0
+      if sensordata["A0"] > basah:
+        print("start pump")
+        durasi_pump = ((sensordata["A0"]-settings["basah"])/(settings["kering"]-settings["basah"]))*settings["durasi_max_pump"] 
+        setled(no=2,state=1)
+        time.sleep(durasi_pump)
+        setled(no=2,state=0)
+        print("beres nyiram")
+    time.sleep(2)
+        
 #thread server
 def start_server_thread():
   print("Server thread start")
@@ -290,14 +320,16 @@ if __name__== "__main__": #untuk apasih ini
   measure_thread.start()
   report_thread = threading.Thread(target=start_report_thread, daemon=True)
   report_thread.start()
+  control_thread = threading.Thread(target=start_control_thread, daemon=True)
+  control_thread.start()
   #TODO: mengaktifkan output LED dan pompa
   #program utama menunggu di sini. Jika program utama selesai maka kedua thread daemon akan terminate
 
   while settings["running"]==1:
     time.sleep(1)
 
-print("stopping program...")
+print("Stopping program...")
 time.sleep(5)
 print("Program end")
-print("bye")
+print("Bye :D")
 
