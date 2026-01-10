@@ -261,7 +261,7 @@ def start_control_thread():
     #nyalain pompa
     if status["pump"]==1:
       status["pump"]=0
-      if sensordata["A0"] > basah:
+      if sensordata["A0"] > settings["basah"]:
         print("start pump")
         durasi_pump = ((sensordata["A0"]-settings["basah"])/(settings["kering"]-settings["basah"]))*settings["durasi_max_pump"] 
         setled(no=2,state=1)
